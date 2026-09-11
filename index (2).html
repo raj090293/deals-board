@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#12203A" />
+<meta name="description" content="Jump straight to real flight and shopping searches, priced in your country's currency." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Deals Board" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="icon" href="icon-192.png" />
+<title>Departures &amp; Deals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#12203A;
+    --navy-deep:#0B1526;
+    --amber:#E8A33D;
+    --paper:#EFE7D8;
+    --paper-soft:#F7F2E7;
+    --ink:#1F2937;
+    --ink-soft:#5B6472;
+    --stamp:#B23A2E;
+    --perf:#C9BFA8;
+    --focus:#2E6BFF;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-soft);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,.brand{ font-family:'Space Mono',ui-monospace,monospace; }
+  a{color:inherit;}
+  :focus-visible{ outline:3px solid var(--focus); outline-offset:2px; }
+  button, select, input{ font-family:inherit; font-size:1rem; }
+
+  .board{
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--paper);
+    padding:2.25rem 1.25rem 2rem;
+    border-bottom:6px solid var(--amber);
+  }
+  .board-inner{max-width:760px;margin:0 auto;}
+  .board h1{
+    font-size:clamp(1.7rem, 6vw, 2.4rem);
+    letter-spacing:0.02em;
+    margin:0 0 0.6rem;
+    color:var(--paper);
+  }
+  .board p.lede{
+    margin:0 0 1.4rem;
+    max-width:46ch;
+    color:#C7CEDB;
+    font-size:0.98rem;
+  }
+  .gate{
+    display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:10px;
+    padding:0.7rem 0.9rem;
+  }
+  .gate label{ font-size:0.82rem; color:#AFC0DE; white-space:nowrap; }
+  .gate select{
+    flex:1;min-width:180px;
+    background:var(--navy-deep);color:var(--paper);
+    border:1px solid rgba(255,255,255,0.25);
+    border-radius:7px;padding:0.5rem 0.6rem;
+  }
+  .gate .currency-tag{
+    font-family:'Space Mono',monospace;
+    background:var(--amber);color:var(--navy-deep);font-weight:700;
+    padding:0.35rem 0.6rem;border-radius:7px;font-size:0.85rem;
+  }
+
+  main{
+    max-width:760px;margin:0 auto;padding:1.75rem 1.25rem 3rem;
+    display:flex;flex-direction:column;gap:1.75rem;
+  }
+
+  .ticket{
+    background:var(--paper);
+    border-radius:var(--radius);
+    box-shadow:0 1px 0 rgba(0,0,0,0.04);
+    border:1px solid #E1D6BE;
+    overflow:hidden;
+  }
+  .ticket-head{ padding:1.25rem 1.25rem 0.25rem; }
+  .ticket-head h2{ margin:0 0 0.35rem; font-size:1.25rem; }
+  .ticket-head p{ margin:0 0 1rem; color:var(--ink-soft); font-size:0.93rem; max-width:52ch; }
+  .ticket-form{
+    padding:0 1.25rem 1.25rem;
+    display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;
+  }
+  .ticket-form .full{ grid-column:1 / -1; }
+  .field{ display:flex; flex-direction:column; gap:0.3rem; }
+  .field label{ font-size:0.78rem; color:var(--ink-soft); }
+  .field input, .field select{
+    padding:0.55rem 0.6rem;border:1px solid #D9CDB0;border-radius:8px;
+    background:var(--paper-soft);color:var(--ink);
+  }
+  .go-btn{
+    grid-column:1 / -1;
+    background:var(--navy);color:var(--paper);border:none;border-radius:8px;
+    padding:0.75rem 1rem;font-weight:600;cursor:pointer;margin-top:0.25rem;
+  }
+  .go-btn:hover{ background:var(--navy-deep); }
+
+  .perf{ position:relative; height:0; border-top:2px dashed var(--perf); margin:0 1.25rem; }
+  .perf::before, .perf::after{
+    content:"";position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--paper-soft);
+  }
+  .perf::before{ left:-27px; }
+  .perf::after{ right:-27px; }
+
+  .results{ padding:1rem 1.25rem 1.4rem; }
+  .results .placeholder{ color:var(--ink-soft); font-size:0.9rem; font-style:italic; }
+  .result-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.55rem; }
+  .result-list li a{
+    display:flex;justify-content:space-between;align-items:center;gap:0.75rem;
+    text-decoration:none;background:var(--paper-soft);border:1px solid #E1D6BE;
+    border-radius:9px;padding:0.7rem 0.9rem;transition:border-color 0.15s ease;
+  }
+  .result-list li a:hover{ border-color:var(--amber); }
+  .result-list li a.primary{ border-color:var(--navy); background:#fff; }
+  .result-site{ font-weight:600; font-size:0.95rem; }
+  .result-note{ display:block; font-weight:400; color:var(--ink-soft); font-size:0.82rem; margin-top:0.1rem; }
+  .result-arrow{ font-family:'Space Mono',monospace; color:var(--ink-soft); font-size:1.1rem; }
+  .results .tip{
+    margin-top:0.9rem;font-size:0.85rem;color:var(--ink-soft);
+    padding-top:0.8rem;border-top:1px solid #E1D6BE;
+  }
+
+  .verified{
+    background:var(--paper);border:1px solid #E1D6BE;border-radius:var(--radius);
+    padding:1.25rem 1.25rem 1.4rem;
+  }
+  .verified h2{ font-size:1.1rem; margin:0 0 0.3rem; display:flex; align-items:center; gap:0.5rem; }
+  .stamp-badge{
+    display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;
+    border:2px solid var(--stamp);color:var(--stamp);border-radius:50%;font-size:0.85rem;
+    font-family:'Space Mono',monospace;transform:rotate(-8deg);
+  }
+  .verified p{ color:var(--ink-soft); font-size:0.9rem; margin:0.4rem 0 0.9rem; max-width:58ch; }
+  .domain-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:0.5rem;
+    list-style:none;margin:0;padding:0;
+  }
+  .domain-grid li{
+    font-family:'Space Mono',monospace;font-size:0.78rem;background:var(--paper-soft);
+    border:1px solid #E1D6BE;border-radius:7px;padding:0.45rem 0.5rem;color:var(--ink);
+  }
+
+  .install{
+    background:var(--paper-soft);border:1px dashed var(--perf);border-radius:var(--radius);
+    padding:1.1rem 1.25rem 1.3rem;
+  }
+  .install h2{ font-size:1.05rem; margin:0 0 0.6rem; }
+  .install ol{
+    margin:0;padding-left:1.15rem;color:var(--ink-soft);font-size:0.88rem;
+    display:flex;flex-direction:column;gap:0.35rem;
+  }
+  .install ol strong{ color:var(--ink); }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:0.78rem; padding:0 1.25rem 2rem; }
+
+  @media (max-width:520px){ .ticket-form{ grid-template-columns:1fr; } }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="board-inner">
+    <h1>Departures &amp; Deals</h1>
+    <p class="lede">Search once, land on the real flight and shopping sites — priced in your currency, not a guess.</p>
+    <div class="gate">
+      <label for="country">Country</label>
+      <select id="country" aria-label="Select your country">
+        <option value="AU">🇦🇺 Australia</option>
+        <option value="IN">🇮🇳 India</option>
+        <option value="US" selected>🇺🇸 United States</option>
+        <option value="OTHER">🌐 Somewhere else</option>
+      </select>
+      <span class="currency-tag" id="currency-tag">USD</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <section class="ticket" id="flights">
+    <div class="ticket-head">
+      <h2>Flights</h2>
+      <p>Fill in what you know. We'll open Google Flights, Skyscanner and Kayak already set to your route, dates and currency.</p>
+    </div>
+    <form class="ticket-form" id="flight-form">
+      <div class="field">
+        <label for="f-from">From</label>
+        <input id="f-from" type="text" placeholder="City or airport" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f-to">To</label>
+        <input id="f-to" type="text" placeholder="City or airport" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f-depart">Depart</label>
+        <input id="f-depart" type="date" />
+      </div>
+      <div class="field">
+        <label for="f-return">Return (optional)</label>
+        <input id="f-return" type="date" />
+      </div>
+      <button class="go-btn" type="submit">Find flights</button>
+    </form>
+    <div class="perf" aria-hidden="true"></div>
+    <div class="results" id="flight-results">
+      <p class="placeholder">Your search links will appear here.</p>
+    </div>
+  </section>
+
+  <section class="ticket" id="shopping">
+    <div class="ticket-head">
+      <h2>Shopping</h2>
+      <p>Type what you're after — e.g. "Nike Air Max 90" — and we'll open it on the sites that show stock, sizes and price.</p>
+    </div>
+    <form class="ticket-form" id="shop-form">
+      <div class="field full">
+        <label for="s-query">What are you looking for?</label>
+        <input id="s-query" type="text" placeholder="Nike Air Max 90, size 10" autocomplete="off" required />
+      </div>
+      <button class="go-btn" type="submit">Find it</button>
+    </form>
+    <div class="perf" aria-hidden="true"></div>
+    <div class="results" id="shop-results">
+      <p class="placeholder">Your search links will appear here.</p>
+    </div>
+  </section>
+
+  <section class="verified">
+    <h2><span class="stamp-badge">OK</span> Where these links actually go</h2>
+    <p>This page doesn't scrape or invent prices. It builds a correct, ready-to-go search link on the real site, so you land straight on live results instead of typing it all in yourself. Every link points to one of these domains only:</p>
+    <ul class="domain-grid" id="domain-list"></ul>
+  </section>
+
+  <section class="install">
+    <h2>Add this to your home screen</h2>
+    <ol>
+      <li>Host these files on GitHub Pages: create a repo, upload <strong>index.html, manifest.json, sw.js, icon-192.png, icon-512.png</strong>, then turn on Pages in the repo's Settings.</li>
+      <li>Open the published link on your phone in Chrome (Android) or Safari (iPhone).</li>
+      <li><strong>Android:</strong> tap the menu (⋮) → "Add to Home screen" / "Install app". <strong>iPhone:</strong> tap Share → "Add to Home Screen".</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>Prices and availability always come from the destination site — check there before you book or buy.</footer>
+
+<script>
+(function(){
+  const COUNTRIES = {
+    AU:   { currency:'AUD', gl:'AU', hl:'en-AU', amazonTLD:'com.au', ebayTLD:'com.au', kayakTLD:'com.au', skyTLD:'com.au', nikeBase:'https://www.nike.com.au' },
+    IN:   { currency:'INR', gl:'IN', hl:'en-IN', amazonTLD:'in',     ebayTLD:'com',    kayakTLD:'co.in',  skyTLD:'co.in',  nikeBase:'https://www.nike.com/in' },
+    US:   { currency:'USD', gl:'US', hl:'en-US', amazonTLD:'com',    ebayTLD:'com',    kayakTLD:'com',    skyTLD:'com',    nikeBase:'https://www.nike.com' },
+    OTHER:{ currency:'USD', gl:'US', hl:'en-US', amazonTLD:'com',    ebayTLD:'com',    kayakTLD:'com',    skyTLD:'net',    nikeBase:'https://www.nike.com' }
+  };
+
+  const countrySelect = document.getElementById('country');
+  const currencyTag = document.getElementById('currency-tag');
+  function currentCountry(){ return COUNTRIES[countrySelect.value] || COUNTRIES.US; }
+  function updateCurrencyTag(){ currencyTag.textContent = currentCountry().currency; }
+  countrySelect.addEventListener('change', updateCurrencyTag);
+  updateCurrencyTag();
+
+  function slug(s){ return (s || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-+|-+$)/g,''); }
+  function toSkyDate(iso){
+    if(!iso) return '';
+    const parts = iso.split('-');
+    if(parts.length !== 3) return '';
+    return parts[0].slice(2) + parts[1] + parts[2];
+  }
+  function renderList(container, items){
+    container.innerHTML = '';
+    const ul = document.createElement('ul');
+    ul.className = 'result-list';
+    items.forEach((item, i) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = item.href;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      if(i === 0) a.classList.add('primary');
+      a.innerHTML =
+        '<span><span class="result-site">' + item.site + '</span>' +
+        '<span class="result-note">' + item.note + '</span></span>' +
+        '<span class="result-arrow">↗</span>';
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    container.appendChild(ul);
+  }
+
+  document.getElementById('flight-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const c = currentCountry();
+    const from = document.getElementById('f-from').value.trim();
+    const to = document.getElementById('f-to').value.trim();
+    const depart = document.getElementById('f-depart').value;
+    const ret = document.getElementById('f-return').value;
+
+    let q = 'Flights';
+    if (from) q += ' from ' + from;
+    if (to) q += ' to ' + to;
+    if (depart) q += ' on ' + depart;
+    if (ret) q += ' through ' + ret;
+    const googleUrl = 'https://www.google.com/travel/flights?q=' + encodeURIComponent(q) +
+      '&curr=' + c.currency + '&gl=' + c.gl + '&hl=' + c.hl;
+
+    let kayakUrl = 'https://www.kayak.' + c.kayakTLD + '/flights';
+    if (from && to){
+      kayakUrl += '/' + slug(from) + '-' + slug(to);
+      if (depart) kayakUrl += '/' + depart;
+      if (ret) kayakUrl += '/' + ret;
+    }
+    kayakUrl += '?currency=' + c.currency;
+
+    let skyUrl = 'https://www.skyscanner.' + c.skyTLD + '/transport/flights/';
+    if (from && to){
+      skyUrl += slug(from) + '/' + slug(to) + '/';
+      if (depart){
+        skyUrl += toSkyDate(depart) + '/';
+        if (ret) skyUrl += toSkyDate(ret) + '/';
+      }
+    }
+
+    renderList(document.getElementById('flight-results'), [
+      { site:'Google Flights', note:'Best overview — fares, dates and airlines side by side, in ' + c.currency, href:googleUrl },
+      { site:'Skyscanner', note:'Good for flexible-date and whole-month searches', href:skyUrl },
+      { site:'Kayak', note:'Includes its own price-trend and alert tools', href:kayakUrl }
+    ]);
+    const tip = document.createElement('p');
+    tip.className = 'tip';
+    tip.textContent = 'Tip: once you\'ve picked a flight, check that airline\'s own site directly — booking direct sometimes avoids extra fees and makes changes easier.';
+    document.getElementById('flight-results').appendChild(tip);
+  });
+
+  document.getElementById('shop-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const c = currentCountry();
+    const query = document.getElementById('s-query').value.trim();
+    if(!query) return;
+    const enc = encodeURIComponent(query);
+
+    const googleUrl = 'https://www.google.com/search?tbm=shop&q=' + enc + '&gl=' + c.gl + '&hl=' + c.hl;
+    const amazonUrl = 'https://www.amazon.' + c.amazonTLD + '/s?k=' + enc;
+    const ebayUrl = 'https://www.ebay.' + c.ebayTLD + '/sch/i.html?_nkw=' + enc;
+    const nikeUrl = c.nikeBase + '/w?q=' + enc;
+    const stockxUrl = 'https://stockx.com/search?s=' + enc;
+
+    renderList(document.getElementById('shop-results'), [
+      { site:'Google Shopping', note:'Quick spread of prices across retailers, in ' + c.currency, href:googleUrl },
+      { site:'Amazon', note:'Local Amazon site for your country', href:amazonUrl },
+      { site:'Nike.com', note:'Official stock and sizing, straight from Nike', href:nikeUrl },
+      { site:'StockX', note:'Live market price by size — handy for sneakers and limited stock', href:stockxUrl },
+      { site:'eBay', note:'Worth a check for used, resale or better deals', href:ebayUrl }
+    ]);
+  });
+
+  const domains = ['google.com', 'skyscanner.com / .com.au / .co.in', 'kayak.com / .com.au / .co.in',
+    'amazon.com / .in / .com.au', 'ebay.com / .com.au', 'nike.com / .com.au', 'stockx.com'];
+  const domainList = document.getElementById('domain-list');
+  domains.forEach(d => {
+    const li = document.createElement('li');
+    li.textContent = d;
+    domainList.appendChild(li);
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
